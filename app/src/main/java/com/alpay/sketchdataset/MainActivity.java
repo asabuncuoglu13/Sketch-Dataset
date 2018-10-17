@@ -23,18 +23,18 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
 
     InkView inkView;
+    String[] popUpTexts;
+    int cnt = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        inkView = (InkView) findViewById(R.id.ink);
-        inkView.hasFlag(InkView.FLAG_INTERPOLATION);
-        inkView.addFlag(InkView.FLAG_RESPONSIVE_WIDTH);
-        inkView.setBackgroundColor(Color.WHITE);
+        prepareInkView();
+        popUpTexts = getResources().getStringArray(R.array.popUpTexts);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setDialogPopUp(R.string.app_name);
+        setDialogPopUp(popUpTexts[cnt]);
     }
 
     @Override
@@ -56,12 +56,22 @@ public class MainActivity extends AppCompatActivity {
                 inkView.setColor(Color.WHITE);
                 return true;
             case R.id.menu_send:
-                setDialogPopUp(R.string.app_name);
-                saveBitmap();
+                if(cnt < popUpTexts.length-1){
+                    cnt++;
+                    setDialogPopUp(popUpTexts[cnt]);
+                    saveBitmap();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void prepareInkView(){
+        inkView = (InkView) findViewById(R.id.ink);
+        inkView.hasFlag(InkView.FLAG_INTERPOLATION);
+        inkView.addFlag(InkView.FLAG_RESPONSIVE_WIDTH);
+        inkView.setBackgroundColor(Color.WHITE);
     }
 
     private void saveBitmap(){
@@ -72,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         canvas.drawColor(Color.WHITE);
         canvas.drawBitmap(bmp, 0, 0, null);
         String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
-                "/PhysicsSketchpad";
+                "/Sketchpad";
         File dir = new File(file_path);
         if(!dir.exists())
             dir.mkdirs();
@@ -90,9 +100,9 @@ public class MainActivity extends AppCompatActivity {
         inkView.clear();
     }
 
-    private void setDialogPopUp(int id){
+    private void setDialogPopUp(String text){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(getResources().getText(id))
+        builder.setMessage(text)
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
